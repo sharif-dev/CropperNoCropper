@@ -120,6 +120,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onImageCropClicked() {
+        if (mBitmap == null){
+            Toast. makeText(this,"Please upload an image first",Toast. LENGTH_SHORT).show();
+            return;
+        }
         if (cropAsyncCheckbox.isChecked()) {
             cropImageAsync();
         } else {
