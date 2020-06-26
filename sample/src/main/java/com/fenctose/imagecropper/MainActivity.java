@@ -379,6 +379,7 @@ public class MainActivity extends AppCompatActivity {
             outState.putString("bitmap", BitMapToString(mBitmap));
             outState.putString("filepath", this.currentFilePath);
         }
+        outState.putString("rotationCount", Integer.toString(rotationCount));
 
         super.onSaveInstanceState(outState);
     }
@@ -387,9 +388,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
+        String rotationString = savedInstanceState.getString("rotationCount");
+        if(rotationString != null) {
+            rotationCount = Integer.parseInt(rotationString);
+        }
         String bitmapString = savedInstanceState.getString("bitmap");
         if(bitmapString != null) {
             mBitmap = StringToBitMap(bitmapString);
+            originalBitmap = mBitmap;
             this.currentFilePath = savedInstanceState.getString("filepath");
             loadFromBitMap(mBitmap);
         }
