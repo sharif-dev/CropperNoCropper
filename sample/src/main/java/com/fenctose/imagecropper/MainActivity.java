@@ -1,5 +1,6 @@
 package com.fenctose.imagecropper;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -12,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -27,6 +29,7 @@ import com.fenchtose.nocropper.CropperCallback;
 import com.fenchtose.nocropper.CropperView;
 import com.fenchtose.nocropper.ScaledCropper;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -121,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onImageCropClicked() {
         if (mBitmap == null){
-            Toast. makeText(this,"Please upload an image first",Toast. LENGTH_SHORT).show();
+            Toast.makeText(this,"Please upload an image first",Toast. LENGTH_SHORT).show();
             return;
         }
         if (cropAsyncCheckbox.isChecked()) {
@@ -146,6 +149,10 @@ public class MainActivity extends AppCompatActivity {
         originalBitmap = mBitmap;
         Log.i(TAG, "bitmap: " + mBitmap.getWidth() + " " + mBitmap.getHeight());
 
+        loadFromBitMap(mBitmap);
+    }
+
+    private void loadFromBitMap(Bitmap mBitmap){
         int maxP = Math.max(mBitmap.getWidth(), mBitmap.getHeight());
         float scale1280 = (float)maxP / 1280;
         Log.i(TAG, "scaled: " + scale1280 + " - " + (1/scale1280));
@@ -170,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
                 (int)(mBitmap.getHeight()/scale1280), true);
 
         mImageView.setImageBitmap(mBitmap);
-        final CropMatrix matrix = matrixMap.get(filePath);
+        final CropMatrix matrix = matrixMap.get(this.currentFilePath);
         if (matrix != null) {
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -364,5 +371,46 @@ public class MainActivity extends AppCompatActivity {
         }
 
         isSnappedToCenter = !isSnappedToCenter;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if(mBitmap != null) {
+            outState.putString("bitmap", BitMapToString(mBitmap));
+            outState.putString("filepath", this.currentFilePath);
+        }
+
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        String bitmapString = savedInstanceState.getString("bitmap");
+        if(bitmapString != null) {
+            mBitmap = StringToBitMap(bitmapString);
+            this.currentFilePath = savedInstanceState.getString("filepath");
+            loadFromBitMap(mBitmap);
+        }
+    }
+
+    public String BitMapToString(Bitmap bitmap){
+        ByteArrayOutputStream baos=new  ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
+        byte [] b=baos.toByteArray();
+        String temp= Base64.encodeToString(b, Base64.DEFAULT);
+        return temp;
+    }
+
+    public Bitmap StringToBitMap(String encodedString){
+        try {
+            byte [] encodeByte=Base64.decode(encodedString,Base64.DEFAULT);
+            Bitmap bitmap=BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            return bitmap;
+        } catch(Exception e) {
+            e.getMessage();
+            return null;
+        }
     }
 }
