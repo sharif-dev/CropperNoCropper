@@ -1,3 +1,23 @@
+## Change Documentation for Android Project Midterm
+
+This is a library that simplifies android image crop and adds Instagram-like effects to your image-crop view.
+
+The sample app in this repository is just a show-case of what this library can do, and it can crop images both asynchronous and synchronous, but you need to provide a callback when you want to use async crop. This library also handles some zoom configurations and provides some grids just like Instagram, there are also gesture handlers for smooth movement.
+
+the sample app had some bugs according to my testings:
+
+* the sample app crashed when the crop button was pressed, and no image was provided
+* the sample app did not reserve the uploaded image bitmap on configuration change like orientation change
+
+what I did:
+
+* I added some error handlers for better user experience
+* added serializer and deserializer for bitmap
+* I reserved some necessary states in the configuration change
+
+</hr>
+
+
 ## Cropper - NoCropper
 
 This is a lightweight Image Cropper for Android which also supports no-crop feature.
